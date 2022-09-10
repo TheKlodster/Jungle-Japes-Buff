@@ -3,7 +3,7 @@ package com.junglejapes;
 import net.runelite.client.RuneLite;
 import net.runelite.client.externalplugins.ExternalPluginManager;
 
-public class PluginLauncher
+public class JungleJapesLauncher
 {
 	public static void main(String[] args) throws Exception
 	{

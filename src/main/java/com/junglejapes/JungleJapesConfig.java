@@ -4,16 +4,17 @@ import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
 
-@ConfigGroup("example")
+@ConfigGroup("Jungle Japes Buff")
 public interface JungleJapesConfig extends Config
 {
 	@ConfigItem(
-		keyName = "greeting",
-		name = "Welcome Greeting",
-		description = "The message to show to the user when they login"
+		keyName = "Volume",
+		name = "Volume",
+		description = "The volume you play the sound effect."
 	)
-	default String greeting()
+	default int volume()
 	{
-		return "Hello";
+		return 80;
 	}
+
 }
