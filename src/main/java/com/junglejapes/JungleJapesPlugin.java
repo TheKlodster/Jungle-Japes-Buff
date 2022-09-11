@@ -16,6 +16,7 @@ import net.runelite.client.plugins.PluginDescriptor;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Paths;
 
 @Slf4j
 @PluginDescriptor(
@@ -24,7 +25,6 @@ import java.net.URL;
 public class JungleJapesPlugin extends Plugin
 {
 	public Clip clip;
-	public String soundFile = "bananasSoundEffect.wav";
 
 	@Inject
 	private Client client;
@@ -32,23 +32,34 @@ public class JungleJapesPlugin extends Plugin
 	@Inject
 	private JungleJapesConfig config;
 
+	@Subscribe
+	public void onGameStateChanged(GameStateChanged gameStateChanged)
+	{
+		if (gameStateChanged.getGameState() == GameState.LOGGED_IN) {
+			playSound();
+		}
+	}
+
 	private void playSound() {
+
+		//String soundFile = "src/main/resources/bananasSoundEffect.wav";
+		String soundFile = "src/main/resources/" + config.soundConfig().toString() + ".wav";
+
 		if(clip != null) {
 			clip.close();
 		}
 
-		Class c = null;
-		AudioInputStream soundFileAudioInputStream = null;
+		AudioInputStream soundInputStream = null;
 		try {
-			c = Class.forName("com.code.OefPlugin");
-			URL url = c.getClassLoader().getResource(soundFile);
-			soundFileAudioInputStream = AudioSystem.getAudioInputStream(url);
-		} catch (ClassNotFoundException | UnsupportedAudioFileException | IOException e) {
+			URL url = Paths.get(soundFile).toUri().toURL();
+			soundInputStream = AudioSystem.getAudioInputStream(url);
+
+		} catch (UnsupportedAudioFileException | IOException e) {
 			e.printStackTrace();
 		}
 
-		if(soundFileAudioInputStream == null) return;
-		if(!tryToLoadFile(soundFileAudioInputStream)) return;
+		if(soundInputStream == null) return;
+		if(!tryToLoadFile(soundInputStream)) return;
 
 		//volume
 		FloatControl volume = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
