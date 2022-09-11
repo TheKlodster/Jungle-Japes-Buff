@@ -14,7 +14,22 @@ public interface JungleJapesConfig extends Config
 	)
 	default int volume()
 	{
-		return 80;
+		return 100;
+	}
+
+	enum OptionEnum
+	{
+	stuge,
+	rallittelija
+	}
+	@ConfigItem(
+			position = 0,
+			keyName = "soundConfig",
+			name = "Sound Effect",
+			description = "Choose a sound effect for stepping on a banana."
+	)
+	default OptionEnum soundConfig() {
+		return OptionEnum.stuge;
 	}
 
 }
