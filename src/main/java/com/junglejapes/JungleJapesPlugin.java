@@ -1,29 +1,38 @@
 package com.junglejapes;
 
 import com.google.inject.Provides;
-import javax.inject.Inject;
-import javax.sound.sampled.*;
-
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.ChatMessageType;
+import net.runelite.api.Actor;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
+import net.runelite.api.GroundObject;
+import net.runelite.api.events.AnimationChanged;
+import net.runelite.api.events.GameObjectSpawned;
 import net.runelite.api.events.GameStateChanged;
+import net.runelite.api.events.GroundObjectSpawned;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 
+import javax.inject.Inject;
+import javax.sound.sampled.*;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @PluginDescriptor(
-	name = "Jungle Japes Buff"
+	name = "Jungle Japes Indicator"
 )
-public class JungleJapesPlugin extends Plugin
-{
+public class JungleJapesPlugin extends Plugin {
+
+	/**
+	 * BABA(15188),
+	 * TOA_PATH_OF_APMEKEN_BOSS(3776, 5439, 3839, 5376)
+	 */
+
 	public Clip clip;
 
 	@Inject
@@ -33,17 +42,21 @@ public class JungleJapesPlugin extends Plugin
 	private JungleJapesConfig config;
 
 	@Subscribe
-	public void onGameStateChanged(GameStateChanged gameStateChanged)
-	{
-		if (gameStateChanged.getGameState() == GameState.LOGGED_IN) {
-			playSound();
+	public void onAnimationChanged(AnimationChanged animationChanged) {
+		if(client.getGameState() == GameState.LOGGED_IN && client.getLocalPlayer().getAnimation() == 4030) { // BANANA_PEEL stun animation ID = 4030
+			playSound("rallittelija");
 		}
 	}
 
-	private void playSound() {
+	@Subscribe
+	public void onGameObjectSpawned(GameObjectSpawned gameObjectSpawned) {
+		if(gameObjectSpawned.getGameObject().getId() == 45755) { // STATIC INT BANANA_PEEL = 45755
+			playSound("stuge");
+		}
+	}
 
-		//String soundFile = "src/main/resources/bananasSoundEffect.wav";
-		String soundFile = "src/main/resources/" + config.soundConfig().toString() + ".wav";
+	private void playSound(String audio) {
+		String soundFile = "src/main/resources/" + audio + ".wav";
 
 		if(clip != null) {
 			clip.close();
