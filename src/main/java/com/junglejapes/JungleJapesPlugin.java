@@ -39,41 +39,34 @@ public class JungleJapesPlugin extends Plugin {
 	@VisibleForTesting
 	private boolean inToaRaid;
 
-	protected void startUp() throws Exception {
+	protected void startUp() {
 		inToaRaid = false;
 
 		// if the plugin was turned on inside the raid, check if there is an invocation level.
-		clientThread.invokeLater(() -> {
-			checkInvocation();
-		});
+		clientThread.invokeLater(this::checkInvocation);
 	}
 
 	@Override
-	protected void shutDown() throws Exception {
+	protected void shutDown() {
 		inToaRaid = false; // plugin is off, set their raid status to false.
 	}
 
 	@Subscribe
-	public void onAnimationChanged(AnimationChanged animationChanged) {
+	public void onAnimationChanged(AnimationChanged animationChanged) throws InterruptedException {
 
 		for(Player player : client.getPlayers()) {
-			log.info(player.toString());
-			if(player != null && player.getName() != null && player.getAnimation() == 4030) {
+			if(player.getName() != null && player.getAnimation() == 4030) {
 				playSound("rallittelija");
+				Thread.sleep(500); // 500ms delay between sound effects.
 			}
 		}
-
-		// maybe put timer for sleep?
-
-//		if(inToaRaid && client.getGameState() == GameState.LOGGED_IN && client.getLocalPlayer().getAnimation() == 4030) { // BANANA_PEEL_STUN animation ID = 4030
-//			playSound("rallittelija");
-//		}
 	}
 
 	@Subscribe
-	public void onGameObjectSpawned(GameObjectSpawned gameObjectSpawned) {
+	public void onGameObjectSpawned(GameObjectSpawned gameObjectSpawned) throws InterruptedException {
 		if(inToaRaid && gameObjectSpawned.getGameObject().getId() == 45755) { // STATIC INT BANANA_PEEL = 45755
 			playSound("stuge");
+			Thread.sleep(1000); // 1000ms delay between sound effects.
 		}
 	}
 
