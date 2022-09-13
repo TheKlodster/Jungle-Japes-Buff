@@ -55,9 +55,19 @@ public class JungleJapesPlugin extends Plugin {
 
 	@Subscribe
 	public void onAnimationChanged(AnimationChanged animationChanged) {
-		if(inToaRaid && client.getGameState() == GameState.LOGGED_IN && client.getLocalPlayer().getAnimation() == 4030) { // BANANA_PEEL stun animation ID = 4030
-			playSound("rallittelija");
+
+		for(Player player : client.getPlayers()) {
+			log.info(player.toString());
+			if(player != null && player.getName() != null && player.getAnimation() == 4030) {
+				playSound("rallittelija");
+			}
 		}
+
+		// maybe put timer for sleep?
+
+//		if(inToaRaid && client.getGameState() == GameState.LOGGED_IN && client.getLocalPlayer().getAnimation() == 4030) { // BANANA_PEEL_STUN animation ID = 4030
+//			playSound("rallittelija");
+//		}
 	}
 
 	@Subscribe
