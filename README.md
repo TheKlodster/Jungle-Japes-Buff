@@ -5,4 +5,4 @@ defeating the baboons during the boss fight with Ba-Ba in the Tombs of Amascut.
 Players that step on a banana peel during the fight are stunned, and a devastating and
 embarrassing (but also relatable) sound effect is played to help be angry for you!
 
-Credit to **stuge** and **rallittelja** for the sound effects, big up Trap House.
+Credit to **stuge** and **rallittelija** for the sound effects, big up Trap House.
