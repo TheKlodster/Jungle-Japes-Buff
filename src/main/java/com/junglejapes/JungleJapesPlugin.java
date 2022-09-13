@@ -1,15 +1,12 @@
 package com.junglejapes;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Provides;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.Actor;
-import net.runelite.api.Client;
-import net.runelite.api.GameState;
-import net.runelite.api.GroundObject;
-import net.runelite.api.events.AnimationChanged;
-import net.runelite.api.events.GameObjectSpawned;
-import net.runelite.api.events.GameStateChanged;
-import net.runelite.api.events.GroundObjectSpawned;
+import net.runelite.api.*;
+import net.runelite.api.events.*;
+import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
@@ -20,7 +17,6 @@ import javax.sound.sampled.*;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @PluginDescriptor(
@@ -28,33 +24,75 @@ import java.util.concurrent.TimeUnit;
 )
 public class JungleJapesPlugin extends Plugin {
 
-	/**
-	 * BABA(15188),
-	 * TOA_PATH_OF_APMEKEN_BOSS(3776, 5439, 3839, 5376)
-	 */
-
 	public Clip clip;
 
 	@Inject
 	private Client client;
 
 	@Inject
+	private ClientThread clientThread;
+
+	@Inject
 	private JungleJapesConfig config;
+
+	@Getter
+	@VisibleForTesting
+	private boolean inToaRaid;
+
+	protected void startUp() throws Exception {
+		inToaRaid = false;
+
+		// if the plugin was turned on inside the raid, check if there is an invocation level.
+		clientThread.invokeLater(() -> {
+			checkInvocation();
+		});
+	}
+
+	@Override
+	protected void shutDown() throws Exception {
+		inToaRaid = false; // plugin is off, set their raid status to false.
+	}
 
 	@Subscribe
 	public void onAnimationChanged(AnimationChanged animationChanged) {
-		if(client.getGameState() == GameState.LOGGED_IN && client.getLocalPlayer().getAnimation() == 4030) { // BANANA_PEEL stun animation ID = 4030
+		if(inToaRaid && client.getGameState() == GameState.LOGGED_IN && client.getLocalPlayer().getAnimation() == 4030) { // BANANA_PEEL stun animation ID = 4030
 			playSound("rallittelija");
 		}
 	}
 
 	@Subscribe
 	public void onGameObjectSpawned(GameObjectSpawned gameObjectSpawned) {
-		if(gameObjectSpawned.getGameObject().getId() == 45755) { // STATIC INT BANANA_PEEL = 45755
+		if(inToaRaid && gameObjectSpawned.getGameObject().getId() == 45755) { // STATIC INT BANANA_PEEL = 45755
 			playSound("stuge");
 		}
 	}
 
+	@Subscribe
+	public void onVarbitChanged(VarbitChanged varbitValueChanged) {
+		checkInvocation();
+	}
+
+	/**
+	 * checkInvocation() checks whether there is an invocation level set on the raid. If the invocationState is 0,
+	 * then they are either not in the raid, or have not turned on any invocations, including jungle japes, in which
+	 * case the plugin will not be active for the sound effects.
+	 */
+	private void checkInvocation() {
+		if(client.getGameState() != GameState.LOGGED_IN) return;
+		int invocationState = client.getVarbitValue(Varbits.TOA_RAID_LEVEL); // get the invocation level.
+
+		// if invocation is 0, they are either not in a raid or they have no further invocations enabled, hence
+		// jungle japes plugin becomes irrelevant.
+		if(invocationState > 0) {
+			inToaRaid = true;
+		}
+	}
+
+	/**
+	 * playSound() takes an input to decide which sound effect to play. This method loads the .wav audio files,
+	 * outputting sound.
+	 * @param audio - "stuge" or "rallittelija" depending on which reason it is used for.
+	 */
 	private void playSound(String audio) {
 		String soundFile = "src/main/resources/" + audio + ".wav";
 
