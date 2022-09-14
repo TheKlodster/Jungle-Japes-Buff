@@ -123,10 +123,8 @@ public class JungleJapesPlugin extends Plugin {
 		clip.loop(0);
 	}
 
-	private boolean tryToLoadFile(AudioInputStream sound)
-	{
-		try
-		{
+	private boolean tryToLoadFile(AudioInputStream sound) {
+		try	{
 			clip = AudioSystem.getClip();
 			clip.open(sound);
 			return true;
@@ -135,8 +133,7 @@ public class JungleJapesPlugin extends Plugin {
 	}
 
 	@Provides
-	JungleJapesConfig provideConfig(ConfigManager configManager)
-	{
+	JungleJapesConfig provideConfig(ConfigManager configManager) {
 		return configManager.getConfig(JungleJapesConfig.class);
 	}
 }
