@@ -119,8 +119,6 @@ public class JungleJapesPlugin extends Plugin {
 
 		volume.setValue(volumeValue);
 		clip.loop(0);
-
-		Thread.sleep(500);
 	}
 
 	private boolean tryToLoadFile(AudioInputStream sound) {
