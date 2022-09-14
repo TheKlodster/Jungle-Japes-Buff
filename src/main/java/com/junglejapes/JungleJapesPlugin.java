@@ -57,16 +57,14 @@ public class JungleJapesPlugin extends Plugin {
 		for(Player player : client.getPlayers()) {
 			if(player.getName() != null && player.getAnimation() == 4030) {
 				playSound("rallittelija");
-				Thread.sleep(500); // 500ms delay between sound effects.
 			}
 		}
 	}
 
 	@Subscribe
 	public void onGameObjectSpawned(GameObjectSpawned gameObjectSpawned) throws InterruptedException {
-		if(inToaRaid && gameObjectSpawned.getGameObject().getId() == 45755) { // STATIC INT BANANA_PEEL = 45755
+		if(inToaRaid && (gameObjectSpawned.getGameObject().getId() == 45755 || gameObjectSpawned.getGameObject().getId() == 8145)) { // STATIC INT BANANA_PEEL = 45755
 			playSound("stuge");
-			Thread.sleep(1000); // 1000ms delay between sound effects.
 		}
 	}
 
@@ -96,7 +94,7 @@ public class JungleJapesPlugin extends Plugin {
 	 * outputting sound.
 	 * @param audio - "stuge" or "rallittelija" depending on which reason it is used for.
 	 */
-	private void playSound(String audio) {
+	private void playSound(String audio) throws InterruptedException {
 		String soundFile = "src/main/resources/" + audio + ".wav";
 
 		if(clip != null) {
@@ -115,12 +113,14 @@ public class JungleJapesPlugin extends Plugin {
 		if(soundInputStream == null) return;
 		if(!tryToLoadFile(soundInputStream)) return;
 
-		//volume
+		// volume
 		FloatControl volume = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
 		float volumeValue = config.volume() - 100;
 
 		volume.setValue(volumeValue);
 		clip.loop(0);
+
+		Thread.sleep(500);
 	}
 
 	private boolean tryToLoadFile(AudioInputStream sound) {
