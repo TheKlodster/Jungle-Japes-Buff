@@ -39,6 +39,12 @@ public class JungleJapesPlugin extends Plugin {
 	@VisibleForTesting
 	private boolean inToaRaid;
 
+	private static final int BANANA_GAME_OBJECT_ID = 45755;
+	private static final int BANANA_SLIP_ANIMATION_ID = 4030;
+	private static final int BANANA_GRAPHICS_ID = 1575;
+	private static int BANANA_SLIP_DELAY, BANANA_SPAWN_DELAY = 0; // in game ticks.
+
+	@Override
 	protected void startUp() {
 		inToaRaid = false;
 
@@ -52,19 +58,33 @@ public class JungleJapesPlugin extends Plugin {
 	}
 
 	@Subscribe
+	public void onGameTick(GameTick event) {
+		if(BANANA_SLIP_DELAY > 0) BANANA_SLIP_DELAY--;
+		if(BANANA_SPAWN_DELAY > 0) BANANA_SPAWN_DELAY--;
+	}
+
+	@Subscribe
 	public void onAnimationChanged(AnimationChanged animationChanged) throws InterruptedException {
+		if(animationChanged.getActor() == null || animationChanged.getActor().getName() == null) return;
+		if(BANANA_SLIP_DELAY > 0) return;
 
 		for(Player player : client.getPlayers()) {
-			if(player.getName() != null && player.getAnimation() == 4030) {
+			if(player.getAnimation() == BANANA_SLIP_ANIMATION_ID || player.getGraphic() == BANANA_GRAPHICS_ID) {
 				playSound("rallittelija");
+				BANANA_SLIP_DELAY = 5;
+				BANANA_SPAWN_DELAY++;
 			}
 		}
 	}
 
 	@Subscribe
 	public void onGameObjectSpawned(GameObjectSpawned gameObjectSpawned) throws InterruptedException {
-		if(inToaRaid && (gameObjectSpawned.getGameObject().getId() == 45755 || gameObjectSpawned.getGameObject().getId() == 8145)) { // STATIC INT BANANA_PEEL = 45755
+		if(BANANA_SPAWN_DELAY > 0) return;
+
+		if(inToaRaid && gameObjectSpawned.getGameObject().getId() == BANANA_GAME_OBJECT_ID) {
 			playSound("stuge");
+			BANANA_SPAWN_DELAY = 3;
+			BANANA_SLIP_DELAY++;
 		}
 	}
 
@@ -81,12 +101,7 @@ public class JungleJapesPlugin extends Plugin {
 	private void checkInvocation() {
 		if(client.getGameState() != GameState.LOGGED_IN) return;
 		int invocationState = client.getVarbitValue(Varbits.TOA_RAID_LEVEL); // get the invocation level.
-
-		// if invocation is 0, they are either not in a raid or they have no further invocations enabled, hence
-		// jungle japes plugin becomes irrelevant.
-		if(invocationState > 0) {
-			inToaRaid = true;
-		}
+		if(invocationState > 0) inToaRaid = true;
 	}
 
 	/**
@@ -94,7 +109,7 @@ public class JungleJapesPlugin extends Plugin {
 	 * outputting sound.
 	 * @param audio - "stuge" or "rallittelija" depending on which reason it is used for.
 	 */
-	private void playSound(String audio) throws InterruptedException {
+	private void playSound(String audio) {
 		String soundFile = "src/main/resources/" + audio + ".wav";
 
 		if(clip != null) {
