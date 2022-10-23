@@ -13,6 +13,8 @@ embarrassing (but also relatable) sound effect is played to help be angry for yo
 
 Credit to **stuge** and **rallittelija** for the sound effects, big up Trap House.
 
+Note: if you 1-tick the banana, it never spawns and stuge's sound effect will not play.
+
 ---
 
 ## Changes
