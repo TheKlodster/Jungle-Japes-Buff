@@ -1,4 +1,4 @@
-package com.junglejapes;
+package com.code;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Provides;
@@ -43,6 +43,8 @@ public class JungleJapesPlugin extends Plugin {
 	private static final int BANANA_SLIP_ANIMATION_ID = 4030;
 	private static final int BANANA_GRAPHICS_ID = 1575;
 	private static int BANANA_SLIP_DELAY, BANANA_SPAWN_DELAY = 0; // in game ticks.
+
+	public JungleJapesPlugin() {}
 
 	@Override
 	protected void startUp() {
@@ -116,19 +118,19 @@ public class JungleJapesPlugin extends Plugin {
 			clip.close();
 		}
 
+		Class c = null;
 		AudioInputStream soundInputStream = null;
 		try {
-			URL url = Paths.get(soundFile).toUri().toURL();
+			c = Class.forName("com.code.JungleJapesPlugin");
+			URL url = c.getClassLoader().getResource(soundFile);
 			soundInputStream = AudioSystem.getAudioInputStream(url);
-
-		} catch (UnsupportedAudioFileException | IOException e) {
+		} catch (UnsupportedAudioFileException | IOException | ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 
 		if(soundInputStream == null) return;
 		if(!tryToLoadFile(soundInputStream)) return;
 
-		// volume
 		FloatControl volume = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
 		float volumeValue = config.volume() - 100;
 
