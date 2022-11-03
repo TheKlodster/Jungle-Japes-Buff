@@ -55,10 +55,7 @@ public class JungleJapesPlugin extends Plugin {
 	}
 
 	@Override
-	protected void shutDown() {
-
-		inToaRaid = false; // plugin is off, set their raid status to false.
-	}
+	protected void shutDown() {	inToaRaid = false; } // plugin is off, set their raid status to false.
 
 	@Subscribe
 	public void onGameTick(GameTick event) {
