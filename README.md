@@ -11,7 +11,16 @@ defeating the baboons during the boss fight with Ba-Ba.
 Players that step on a banana peel during the fight are stunned, and a devastating and
 embarrassing (but also relatable) sound effect is played to help be angry for you!
 
-Credit to **stuge** and **rallittelija** for the sound effects, big up Trap House.
+---
+
+## Instructions
+1. Download **Jungle Japes Indicator** plugin.
+2. Turn it on.
+3. Gaming.
+
+Credit to **stuge** and **rallittelija** for the sound effects, big up Trap House.\
+Credit to the Runelite team as well as the Runelite Development Discord channel for their
+help and guidance on making my first plugin.
 
 Note: if you 1-tick the banana, it never spawns and stuge's sound effect will not play.
 
@@ -23,5 +32,6 @@ Note: if you 1-tick the banana, it never spawns and stuge's sound effect will no
 
 - Initial release.
 
-1.1
-- Fixed sound effect not playing on jar file.
+#### Version 1.1
+- Fixed sound effect not playing on jar file. Prevented users from not being able to
+any sound effects.
