@@ -22,3 +22,6 @@ Note: if you 1-tick the banana, it never spawns and stuge's sound effect will no
 #### Version 1.0
 
 - Initial release.
+
+1.1
+- Fixed sound effect not playing on jar file.
