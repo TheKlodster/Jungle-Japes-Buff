@@ -14,9 +14,9 @@ import net.runelite.client.plugins.PluginDescriptor;
 
 import javax.inject.Inject;
 import javax.sound.sampled.*;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Paths;
 
 @Slf4j
 @PluginDescriptor(
@@ -42,7 +42,7 @@ public class JungleJapesPlugin extends Plugin {
 	private static final int BANANA_GAME_OBJECT_ID = 45755;
 	private static final int BANANA_SLIP_ANIMATION_ID = 4030;
 	private static final int BANANA_GRAPHICS_ID = 1575;
-	private static int BANANA_SLIP_DELAY, BANANA_SPAWN_DELAY = 0; // in game ticks.
+	private static int BANANA_SLIP_DELAY = 0, BANANA_SPAWN_DELAY = 0; // in game ticks.
 
 	public JungleJapesPlugin() {}
 
@@ -56,6 +56,7 @@ public class JungleJapesPlugin extends Plugin {
 
 	@Override
 	protected void shutDown() {
+
 		inToaRaid = false; // plugin is off, set their raid status to false.
 	}
 
@@ -66,7 +67,7 @@ public class JungleJapesPlugin extends Plugin {
 	}
 
 	@Subscribe
-	public void onAnimationChanged(AnimationChanged animationChanged) throws InterruptedException {
+	public void onAnimationChanged(AnimationChanged animationChanged) {
 		if(animationChanged.getActor() == null || animationChanged.getActor().getName() == null) return;
 		if(BANANA_SLIP_DELAY > 0) return;
 
@@ -80,7 +81,7 @@ public class JungleJapesPlugin extends Plugin {
 	}
 
 	@Subscribe
-	public void onGameObjectSpawned(GameObjectSpawned gameObjectSpawned) throws InterruptedException {
+	public void onGameObjectSpawned(GameObjectSpawned gameObjectSpawned) {
 		if(BANANA_SPAWN_DELAY > 0) return;
 
 		if(inToaRaid && gameObjectSpawned.getGameObject().getId() == BANANA_GAME_OBJECT_ID) {
@@ -113,24 +114,32 @@ public class JungleJapesPlugin extends Plugin {
 	 */
 	private void playSound(String audio) {
 		String soundFile = "src/main/resources/" + audio + ".wav";
-
-		if(clip != null) {
-			clip.close();
-		}
+		File file = new File(soundFile);
+		if(clip != null) clip.close();
 
 		Class c = null;
 		AudioInputStream soundInputStream = null;
 		try {
-			c = Class.forName("com.code.JungleJapesPlugin");
-			URL url = c.getClassLoader().getResource(soundFile);
-			soundInputStream = AudioSystem.getAudioInputStream(url);
-		} catch (UnsupportedAudioFileException | IOException | ClassNotFoundException e) {
+			//URL url = Paths.get(soundFile).toUri().toURL();
+			//c = Class.forName("com.code.JungleJapesPlugin");
+			//URL url = c.getClassLoader().getResource(soundFile);
+			soundInputStream = AudioSystem.getAudioInputStream(file);
+		} catch (UnsupportedAudioFileException e) {
+			System.err.println("The specified audio file is not supported.");
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.err.println("Failed to load sound.");
 			e.printStackTrace();
 		}
+//		} catch (ClassNotFoundException e) {
+//			System.err.println("Class not found.");
+//			e.printStackTrace();
+//		}
 
 		if(soundInputStream == null) return;
 		if(!tryToLoadFile(soundInputStream)) return;
 
+		// volume
 		FloatControl volume = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
 		float volumeValue = config.volume() - 100;
 
