@@ -18,11 +18,15 @@ embarrassing (but also relatable) sound effect is played to help be angry for yo
 2. Turn it on.
 3. Gaming.
 
-Credit to **stuge** and **rallittelija** for the sound effects, big up Trap House.\
+Any users that have the plugin installed will be able to hear the sound effects together
+in the room.
+
+Credit to **Stuge** and **Rallittelija** for the sound effects, big up Trap House.
+
 Credit to the Runelite team as well as the Runelite Development Discord channel for their
 help and guidance on making my first plugin.
 
-Note: if you 1-tick the banana, it never spawns and stuge's sound effect will not play.
+Note: if you 1-tick the banana peel, it never spawns and Stuge's sound effect will not play.
 
 ---
 
@@ -34,4 +38,4 @@ Note: if you 1-tick the banana, it never spawns and stuge's sound effect will no
 
 #### Version 1.1
 - Fixed sound effect not playing on jar file. Prevented users from not being able to
-any sound effects.
+hear the sound effects.
