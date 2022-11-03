@@ -110,28 +110,25 @@ public class JungleJapesPlugin extends Plugin {
 	 * @param audio - "stuge" or "rallittelija" depending on which reason it is used for.
 	 */
 	private void playSound(String audio) {
-		String soundFile = "src/main/resources/" + audio + ".wav";
-		File file = new File(soundFile);
+		String soundFile = audio + ".wav";
 		if(clip != null) clip.close();
 
 		Class c = null;
 		AudioInputStream soundInputStream = null;
 		try {
-			//URL url = Paths.get(soundFile).toUri().toURL();
-			//c = Class.forName("com.code.JungleJapesPlugin");
-			//URL url = c.getClassLoader().getResource(soundFile);
-			soundInputStream = AudioSystem.getAudioInputStream(file);
+			c = Class.forName("com.code.JungleJapesPlugin");
+			URL url = c.getClassLoader().getResource(soundFile);
+			soundInputStream = AudioSystem.getAudioInputStream(url);
 		} catch (UnsupportedAudioFileException e) {
 			System.err.println("The specified audio file is not supported.");
 			e.printStackTrace();
 		} catch (IOException e) {
 			System.err.println("Failed to load sound.");
 			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			System.err.println("Class not found.");
+			e.printStackTrace();
 		}
-//		} catch (ClassNotFoundException e) {
-//			System.err.println("Class not found.");
-//			e.printStackTrace();
-//		}
 
 		if(soundInputStream == null) return;
 		if(!tryToLoadFile(soundInputStream)) return;
