@@ -5,6 +5,8 @@ import com.google.inject.Provides;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.*;
+import net.runelite.api.coords.LocalPoint;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.*;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
@@ -14,7 +16,6 @@ import net.runelite.client.plugins.PluginDescriptor;
 
 import javax.inject.Inject;
 import javax.sound.sampled.*;
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
@@ -38,11 +39,18 @@ public class JungleJapesPlugin extends Plugin {
 	@Getter
 	@VisibleForTesting
 	private boolean inToaRaid;
+	private boolean invocationChanged = false;
 
 	private static final int BANANA_GAME_OBJECT_ID = 45755;
 	private static final int BANANA_SLIP_ANIMATION_ID = 4030;
 	private static final int BANANA_GRAPHICS_ID = 1575;
+	private static final int TOA_LOBBY_ID = 13454;
+	private static final int TOA_NEXUS_ID = 14160;
+	private static final int TOA_APMEKEN_ID = 15186;
+	private static final int TOA_BABA_ID = 15188;
 	private static int BANANA_SLIP_DELAY = 0, BANANA_SPAWN_DELAY = 0; // in game ticks.
+	private int invocationLevel = 0;
+	private int invocationVarbit = 0;
 
 	public JungleJapesPlugin() {}
 
@@ -55,7 +63,9 @@ public class JungleJapesPlugin extends Plugin {
 	}
 
 	@Override
-	protected void shutDown() {	inToaRaid = false; } // plugin is off, set their raid status to false.
+	protected void shutDown() {
+		inToaRaid = false;
+	}
 
 	@Subscribe
 	public void onGameTick(GameTick event) {
@@ -67,6 +77,7 @@ public class JungleJapesPlugin extends Plugin {
 	public void onAnimationChanged(AnimationChanged animationChanged) {
 		if(animationChanged.getActor() == null || animationChanged.getActor().getName() == null) return;
 		if(BANANA_SLIP_DELAY > 0) return;
+		if(!inToaRaid) return;
 
 		for(Player player : client.getPlayers()) {
 			if(player.getAnimation() == BANANA_SLIP_ANIMATION_ID || player.getGraphic() == BANANA_GRAPHICS_ID) {
@@ -80,8 +91,9 @@ public class JungleJapesPlugin extends Plugin {
 	@Subscribe
 	public void onGameObjectSpawned(GameObjectSpawned gameObjectSpawned) {
 		if(BANANA_SPAWN_DELAY > 0) return;
+		if(!inToaRaid) return;
 
-		if(inToaRaid && gameObjectSpawned.getGameObject().getId() == BANANA_GAME_OBJECT_ID) {
+		if(gameObjectSpawned.getGameObject().getId() == BANANA_GAME_OBJECT_ID) {
 			playSound("stuge");
 			BANANA_SPAWN_DELAY = 3;
 			BANANA_SLIP_DELAY++;
@@ -90,18 +102,44 @@ public class JungleJapesPlugin extends Plugin {
 
 	@Subscribe
 	public void onVarbitChanged(VarbitChanged varbitValueChanged) {
+		invocationVarbit = client.getVarbitValue(Varbits.TOA_RAID_LEVEL); // get the invocation level.
+		if(getRegion() == TOA_LOBBY_ID) resetState();
+		if(getRegion() == TOA_NEXUS_ID || getRegion() == TOA_APMEKEN_ID || getRegion() == TOA_BABA_ID) invocationChanged = true;
 		checkInvocation();
 	}
 
 	/**
-	 * checkInvocation() checks whether there is an invocation level set on the raid. If the invocationState is 0,
-	 * then they are either not in the raid, or have not turned on any invocations, including jungle japes, in which
-	 * case the plugin will not be active for the sound effects.
+	 * checkInvocation() checks whether there is an invocation level set on the raid. If the invocation level is 0,
+	 * then they have not turned on any invocations, including jungle japes, or they are not in a raid, in which case
+	 * the plugin will not be active for the sound effects.
 	 */
 	private void checkInvocation() {
 		if(client.getGameState() != GameState.LOGGED_IN) return;
-		int invocationState = client.getVarbitValue(Varbits.TOA_RAID_LEVEL); // get the invocation level.
-		if(invocationState > 0) inToaRaid = true;
+
+		if(invocationChanged) {
+			invocationLevel = invocationVarbit;
+			invocationChanged = false;
+		}
+
+		if(invocationLevel > 0) inToaRaid = true;
+		else resetState();
+	}
+
+	/**
+	 * resetState() resets the raid state by setting their in raid status to false and the invocation level to 0.
+	 */
+	private void resetState() {
+		invocationLevel = 0;
+		inToaRaid = false;
+	}
+
+	/**
+	 * Gets the map region ID of the local player's location and returns it.
+	 * @return Map region ID.
+	 */
+	private int getRegion() {
+		LocalPoint localPoint = client.getLocalPlayer().getLocalLocation();
+		return WorldPoint.fromLocalInstance(client, localPoint).getRegionID();
 	}
 
 	/**
@@ -128,6 +166,8 @@ public class JungleJapesPlugin extends Plugin {
 		} catch (ClassNotFoundException e) {
 			System.err.println("Class not found.");
 			e.printStackTrace();
+		} catch (NullPointerException e) {
+			System.err.println("Audio file not found.");
 		}
 
 		if(soundInputStream == null) return;
