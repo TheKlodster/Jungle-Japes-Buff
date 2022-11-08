@@ -4,10 +4,16 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.inject.Provides;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.api.*;
+import net.runelite.api.Client;
+import net.runelite.api.GameState;
+import net.runelite.api.Player;
+import net.runelite.api.Varbits;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
-import net.runelite.api.events.*;
+import net.runelite.api.events.AnimationChanged;
+import net.runelite.api.events.GameObjectSpawned;
+import net.runelite.api.events.GameTick;
+import net.runelite.api.events.VarbitChanged;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -16,8 +22,9 @@ import net.runelite.client.plugins.PluginDescriptor;
 
 import javax.inject.Inject;
 import javax.sound.sampled.*;
+import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 
 @Slf4j
 @PluginDescriptor(
@@ -148,26 +155,23 @@ public class JungleJapesPlugin extends Plugin {
 	 * @param audio - "stuge" or "rallittelija" depending on which reason it is used for.
 	 */
 	private void playSound(String audio) {
-		String soundFile = audio + ".wav";
+		String soundFile = "/" + audio + ".wav";
 		if(clip != null) clip.close();
 
-		Class c = null;
 		AudioInputStream soundInputStream = null;
 		try {
-			c = Class.forName("com.code.JungleJapesPlugin");
-			URL url = c.getClassLoader().getResource(soundFile);
-			soundInputStream = AudioSystem.getAudioInputStream(url);
+			InputStream input = JungleJapesPlugin.class.getResourceAsStream(soundFile);
+			InputStream bufferedInput = new BufferedInputStream(input);  // support the optional mark/reset for AudioInputStream
+			soundInputStream = AudioSystem.getAudioInputStream(bufferedInput);
 		} catch (UnsupportedAudioFileException e) {
-			System.err.println("The specified audio file is not supported.");
+			log.warn("The specified audio file is not supported.");
 			e.printStackTrace();
 		} catch (IOException e) {
-			System.err.println("Failed to load sound.");
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			System.err.println("Class not found.");
+			log.warn("Failed to load sound.");
 			e.printStackTrace();
 		} catch (NullPointerException e) {
-			System.err.println("Audio file not found.");
+			log.warn("Audio file not found.");
+			e.printStackTrace();
 		}
 
 		if(soundInputStream == null) return;
