@@ -39,3 +39,4 @@ Note: if you 1-tick the banana peel, it never spawns and Stuge's sound effect wi
 #### Version 1.1
 - Fixed sound effect not playing on jar file. Prevented users from not being able to
 hear the sound effects.
+- Fixed the plugin assuming the player was still in a raid after exiting.
