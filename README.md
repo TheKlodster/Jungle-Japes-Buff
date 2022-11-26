@@ -21,9 +21,9 @@ embarrassing (but also relatable) sound effect is played to help be angry for yo
 Any users that have the plugin installed will be able to hear the sound effects together
 in the room.
 
-Credit to **Stuge** and **Rallittelija** for the sound effects, big up Trap House.
+Credit to **Stuge** and **Rallittelija** for the sound effects.
 
-Credit to the Runelite team as well as the Runelite Development Discord channel for their
+Credit to the RuneLite team as well as the RuneLite Development Discord channel for their
 help and guidance on making my first plugin.
 
 Note: if you 1-tick the banana peel, it never spawns and Stuge's sound effect will not play.
@@ -33,10 +33,13 @@ Note: if you 1-tick the banana peel, it never spawns and Stuge's sound effect wi
 ## Changes
 
 #### Version 1.0
-
 - Initial release.
 
 #### Version 1.1
 - Fixed sound effect not playing on jar file. Prevented users from not being able to
 hear the sound effects.
 - Fixed the plugin assuming the player was still in a raid after exiting.
+
+#### Version 1.2
+- Implemented a 4-tick delay between sound effects for banana peels spawning &
+banana slips.
