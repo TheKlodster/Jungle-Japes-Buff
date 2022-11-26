@@ -55,7 +55,7 @@ public class JungleJapesPlugin extends Plugin {
 	private static final int TOA_NEXUS_ID = 14160;
 	private static final int TOA_APMEKEN_ID = 15186;
 	private static final int TOA_BABA_ID = 15188;
-	private static int BANANA_SLIP_DELAY = 0, BANANA_SPAWN_DELAY = 0; // in game ticks.
+	private static int BANANA_DELAY = 0; // in game ticks.
 	private int invocationLevel = 0;
 	private int invocationVarbit = 0;
 
@@ -76,34 +76,31 @@ public class JungleJapesPlugin extends Plugin {
 
 	@Subscribe
 	public void onGameTick(GameTick event) {
-		if(BANANA_SLIP_DELAY > 0) BANANA_SLIP_DELAY--;
-		if(BANANA_SPAWN_DELAY > 0) BANANA_SPAWN_DELAY--;
+		if(BANANA_DELAY > 0) BANANA_DELAY--;
 	}
 
 	@Subscribe
 	public void onAnimationChanged(AnimationChanged animationChanged) {
 		if(animationChanged.getActor() == null || animationChanged.getActor().getName() == null) return;
-		if(BANANA_SLIP_DELAY > 0) return;
+		if(BANANA_DELAY > 0) return;
 		if(!inToaRaid) return;
 
 		for(Player player : client.getPlayers()) {
 			if(player.getAnimation() == BANANA_SLIP_ANIMATION_ID || player.getGraphic() == BANANA_GRAPHICS_ID) {
 				playSound("rallittelija");
-				BANANA_SLIP_DELAY = 5;
-				BANANA_SPAWN_DELAY++;
+				BANANA_DELAY = 4;
 			}
 		}
 	}
 
 	@Subscribe
 	public void onGameObjectSpawned(GameObjectSpawned gameObjectSpawned) {
-		if(BANANA_SPAWN_DELAY > 0) return;
+		if(BANANA_DELAY > 0) return;
 		if(!inToaRaid) return;
 
 		if(gameObjectSpawned.getGameObject().getId() == BANANA_GAME_OBJECT_ID) {
 			playSound("stuge");
-			BANANA_SPAWN_DELAY = 3;
-			BANANA_SLIP_DELAY++;
+			BANANA_DELAY = 4;
 		}
 	}
 
